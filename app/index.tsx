@@ -1,18 +1,44 @@
-import { View, Text, Pressable } from 'react-native'
-import React, { memo } from 'react'
+import { View, Text, Image } from 'react-native'
+import React, { memo, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { router } from 'expo-router'
+import LottieView from 'lottie-react-native';
 
 const index = memo(() => {
+
+  const animation = useRef(null)
+
   return (
-    <SafeAreaView className='px-2 flex-1 bg-white'>
-      <Pressable
-        onPress={()=>{
-          router.navigate(`/(tabs)`)
+    <SafeAreaView className='flex-1 px-2 justify-evenly bg-background items-center'>
+      <View>
+        <Text className='mb-4 text-white text-lg text-center'>
+          Welcome to
+        </Text>
+        <Text className='text-white text-7xl font-thin text-center'>
+          DietDeX!
+        </Text>
+        <Text className='text-white text-lg text-center'>
+          Your personalized AI nutritionist
+        </Text>
+      </View>
+      <LottieView
+        autoPlay
+        ref={animation}
+        style={{
+          width: '100%',
+          height: '25%'
         }}
-      >
-        <Text className='text-2xl font-bold'>hdsdsbds</Text>
-      </Pressable>
+        source={require('../assets/raw/login.json')}
+      />
+      <View className='flex-row mx-2  self-stretch items-center justify-center p-5 rounded-full bg-primary'>
+        <Image
+          source={require('../assets/icons/google.png')}
+          className='w-[30] h-[30] mr-5'
+          tintColor={'#000000'}
+        />
+        <Text className='text-black text-lg font-bold'>
+          Sign In
+        </Text>
+      </View>
     </SafeAreaView>
   )
 })
