@@ -1,21 +1,35 @@
-import { View, Text, ScrollView, TextInput } from 'react-native'
+import { View, Text, ScrollView, TextInput, FlatList, Pressable } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { useStore } from '@/src/store/store'
+import ChatBubble from '@/components/ChatBubble'
 
 const ChatScreen = () => {
+
+  const {messageList, getGeminiResponse} = useStore((state)=>({
+    messageList: state.messageList,
+    getGeminiResponse: state.getGeminiResponse
+  }))
 
   const [message, setMessage] = useState<string>("")
 
   return (
     <SafeAreaView className='flex-1 justify-between bg-background px-2'>
-      <ScrollView>
+      <View className='flex-initial'>
         <Text className='text-white font-bold text-2xl'>
           DexAI!
         </Text>
-        
-      </ScrollView>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          className='flex-initial'
+          data={messageList}
+          renderItem={({item})=>
+            <ChatBubble messageItem={item}/>
+          }
+        />
+      </View>
       <Animated.View
         className='items-center m-2 px-2 flex-row self-stretch rounded-full border-2 justify-between border-primary'
         sharedTransitionTag='dex'
@@ -35,16 +49,21 @@ const ChatScreen = () => {
             style={{ color: 'white' }}
           />
         </View>
-        <View
+        <Pressable
           style={{ backgroundColor: '#D9D9D9' }}
           className='rounded-full p-2'
+          onPress={()=>{
+            useStore.setState({messageList: [...messageList, {message: message, user:true}]})
+            getGeminiResponse(message)
+            setMessage("")
+          }}
         >
           <Ionicons
             name='send'
             color={'black'}
             size={20}
           />
-        </View>
+        </Pressable>
       </Animated.View>
     </SafeAreaView>
   )
