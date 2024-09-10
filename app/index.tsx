@@ -1,7 +1,8 @@
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, Pressable } from 'react-native'
 import React, { memo, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import LottieView from 'lottie-react-native';
+import { router } from 'expo-router';
 
 const index = memo(() => {
 
@@ -29,7 +30,12 @@ const index = memo(() => {
         }}
         source={require('../assets/raw/login.json')}
       />
-      <View className='flex-row mx-2  self-stretch items-center justify-center p-5 rounded-full bg-primary'>
+      <Pressable
+        className='flex-row mx-2  self-stretch items-center justify-center p-5 rounded-full bg-primary'
+        onPress={()=>{
+          router.navigate(`/HomeScreen`)
+        }}
+      >
         <Image
           source={require('../assets/icons/google.png')}
           className='w-[30] h-[30] mr-5'
@@ -38,7 +44,7 @@ const index = memo(() => {
         <Text className='text-black text-lg font-bold'>
           Sign In
         </Text>
-      </View>
+      </Pressable>
     </SafeAreaView>
   )
 })
