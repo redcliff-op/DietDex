@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TextInput, FlatList, Pressable, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated from 'react-native-reanimated'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -8,7 +8,7 @@ import ChatBubble from '@/components/ChatBubble'
 import Collapsible from 'react-native-collapsible';
 import * as ImagePicker from 'expo-image-picker';
 
-const ChatScreen = () => {
+const ChatScreen = memo(() => {
 
   const { messageList, getGeminiResponse } = useStore((state) => ({
     messageList: state.messageList,
@@ -29,7 +29,7 @@ const ChatScreen = () => {
   }
 
   return (
-    <SafeAreaView className='flex-1 justify-between bg-background px-2'>
+    <SafeAreaView className='flex-1 justify-between bg-background px-4'>
       <View className='flex-initial'>
         <Text className='text-white font-bold text-2xl'>
           DexAI!
@@ -129,7 +129,7 @@ const ChatScreen = () => {
             className='rounded-full p-2 mr-1'
             onPress={() => {
               useStore.setState({ messageList: [...messageList, { message: message, user: true }] })
-              getGeminiResponse(message, image)
+              getGeminiResponse(message, image,false)
               setMessage("")
               setImage(null)
             }}
@@ -144,6 +144,6 @@ const ChatScreen = () => {
       </View>
     </SafeAreaView>
   )
-}
+})
 
 export default ChatScreen

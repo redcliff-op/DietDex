@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
+import * as NavigationBar from 'expo-navigation-bar';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,6 +22,8 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
+  NavigationBar.setBackgroundColorAsync('#141417')
 
   return (
     <View className='flex-1 bg-background'>

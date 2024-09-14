@@ -3,10 +3,21 @@ import React, { memo, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import LottieView from 'lottie-react-native';
 import { router } from 'expo-router';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { WEB_CLIENT_ID } from '@/Keys';
+import { useStore } from '@/src/store/store';
 
 const index = memo(() => {
 
   const animation = useRef(null)
+
+  GoogleSignin.configure({
+    webClientId: WEB_CLIENT_ID
+  });
+
+  const {signIn} = useStore((state)=>({
+    signIn: state.signIn
+  }))
 
   return (
     <SafeAreaView className='flex-1 px-2 justify-evenly bg-background items-center'>
@@ -33,7 +44,7 @@ const index = memo(() => {
       <Pressable
         className='flex-row mx-2  self-stretch items-center justify-center p-5 rounded-full bg-primary'
         onPress={()=>{
-          router.navigate(`/HomeScreen`)
+          signIn()
         }}
       >
         <Image
