@@ -11,14 +11,15 @@ import Collapsible from 'react-native-collapsible'
 
 const HomeScreen = memo(() => {
 
-  const { getGeminiResponse, geminiLoading, userData } = useStore((state) => ({
+  const { getGeminiResponse, geminiLoading, userData, handleScanHistory, response, image } = useStore((state) => ({
     getGeminiResponse: state.getGeminiResponse,
     geminiLoading: state.geminiLoading,
-    userData: state.userData
+    userData: state.userData,
+    handleScanHistory: state.handleScanHistory,
+    response: state.response,
+    image: state.responseImage
   }))
 
-  const [image, setImage] = useState<string | null>(null)
-  const [response, setResponse] = useState<ProductAnalysis | null>(null)
   const [nutCollapsed, setNutCollapsed] = useState<boolean>(true)
   const [vitMinCollapsed, setVitMinCollapsed] = useState<boolean>(true)
   const [ingredCollapsed, setIngredCollapsed] = useState<boolean>(true)
@@ -29,16 +30,37 @@ const HomeScreen = memo(() => {
     const img = await ImagePicker.launchImageLibraryAsync()
     const imageUri = img.assets?.[0].uri
     if (imageUri) {
-      setResponse(null)
-      setImage(null)
-      setImage(imageUri)
+      useStore.setState({ response: null })
+      useStore.setState({responseImage: imageUri})
       const result = await getGeminiResponse("", imageUri, true)
-      setResponse(JSON.parse(result))
+      useStore.setState({ response: JSON.parse(result) })
+      handleScanHistory(JSON.parse(result))
     }
   }
 
   return (
     <SafeAreaView className='flex-1 justify-between bg-background px-4'>
+      <View className='flex-row justify-between items-center'>
+        <View className='flex-row items-center'>
+          <Animated.Image
+            sharedTransitionTag='pfp'
+            source={{ uri: userData?.user.photo?.toString() }}
+            className='w-[50] h-[50] rounded-full'
+          />
+          <Pressable
+            onPress={() => {
+              router.navigate(`/profile`)
+            }}
+          >
+            <Text className='ml-3 text-white font-bold text-xl'>
+              Welcome {userData?.user.givenName}!
+            </Text>
+            <Text className='ml-3 text-gray-300 text-base'>
+              Let's discover healthier choices!
+            </Text>
+          </Pressable>
+        </View>
+      </View>
       {(geminiLoading) ? (
         <Animated.View
           entering={FadeIn}
@@ -57,27 +79,7 @@ const HomeScreen = memo(() => {
         </Animated.View>
       ) : (
         <View className='flex-1 justify-between'>
-          <View className='flex-row justify-between items-center'>
-            <View className='flex-row items-center'>
-              <Animated.Image
-                sharedTransitionTag='pfp'
-                source={{ uri: userData?.user.photo?.toString() }}
-                className='w-[50] h-[50] rounded-full'
-              />
-              <Pressable
-                onPress={()=>{
-                  router.navigate(`/profile`)
-                }}
-              >
-                <Text className='ml-3 text-white font-bold text-xl'>
-                  Welcome {userData?.user.givenName}!
-                </Text>
-                <Text className='ml-3 text-gray-300 text-base'>
-                  Let's discover healthier choices!
-                </Text>
-              </Pressable>
-            </View>
-          </View>
+
           {(!response) ? (
             <Animated.View entering={FadeIn} exiting={FadeOut} className='flex-1 justify-center'>
               <LottieView
@@ -101,11 +103,11 @@ const HomeScreen = memo(() => {
           ) : (
             <Animated.ScrollView entering={FadeIn} exiting={FadeOut} showsVerticalScrollIndicator={false}>
               <View className='mt-2 items-center rounded-3xl p-3 bg-darkgray flex-row'>
-                <Image
+                {image ? <Image
                   source={{ uri: image?.toString() }}
                   className='aspect-square opacity-90 w-[30%]'
                   borderRadius={15}
-                />
+                /> : null}
                 <View className='justify-center items-start'>
                   {response.brand ? <Text numberOfLines={1} className='text-primary ml-3 text-2xl font-bold overflow-ellipsis'>{response.brand}</Text> : null}
                   {response.product_name ? <Text numberOfLines={1} className='text-primary ml-3 text-xl font-bold overflow-ellipsis'>{response.product_name}</Text> : null}

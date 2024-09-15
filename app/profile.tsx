@@ -1,15 +1,24 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, FlatList } from 'react-native'
 import React, { memo } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated from 'react-native-reanimated'
 import { useStore } from '@/src/store/store'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { router } from 'expo-router'
 
 const profile = memo(() => {
 
-  const { userData, signOut } = useStore((state) => ({
+  const { userData, signOut, scanHistory } = useStore((state) => ({
     userData: state.userData,
-    signOut: state.signOut
+    signOut: state.signOut,
+    scanHistory: state.scanHistory
   }))
+
+  const handleResponse = async(response: ProductAnalysis) => {
+    router.dismiss(1)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    useStore.setState({response: response, responseImage: null})
+  }
 
   return (
     <SafeAreaView className='flex-1 bg-background px-4 justify-between'>
@@ -30,8 +39,50 @@ const profile = memo(() => {
           {userData?.user.email}
         </Text>
       </View>
+      <Animated.View
+        sharedTransitionTag='hist'
+        className='bg-darkgray my-4 p-2 max-h-[50%] rounded-3xl overflow-hidden'
+      >
+        <View className='flex-row items-center justify-between'>
+          <Text className='text-white text-lg p-2 font-bold'>
+            Scan History
+          </Text>
+          <Pressable
+            onPress={() => {
+              router.navigate(`/history`)
+            }}
+          >
+            <Text className='text-primary text-base text-center px-2 my-2 font-bold'>
+              View all
+            </Text>
+          </Pressable>
+        </View>
+        <FlatList
+          className='mb-2'
+          showsVerticalScrollIndicator={false}
+          data={scanHistory}
+          renderItem={({ item }) =>
+            <Pressable
+              onPress={()=>{
+                handleResponse(item)
+              }}
+              className='flex-row justify-between items-center my-1 rounded-xl p-4 bg-background'
+            >
+              <View>
+                {item.brand ? <Text className='text-primary text-base font-bold'>{item.brand}</Text> : null}
+                {item.product_name ? <Text className='text-primary text-base font-bold'>{item.product_name}</Text> : null}
+              </View>
+              <Ionicons
+                name='arrow-forward-sharp'
+                size={20}
+                color={'white'}
+              />
+            </Pressable>
+          }
+        />
+      </Animated.View>
       <Pressable
-        onPress={()=>{
+        onPress={() => {
           signOut()
         }}
         className='rounded-full mb-2.5 p-4 bg-primary'

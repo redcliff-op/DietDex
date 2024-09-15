@@ -4,12 +4,16 @@ import { GEMINI_API_KEY } from "@/Keys";
 import RNFS from 'react-native-fs';
 import { GoogleSignin, isSuccessResponse, User } from "@react-native-google-signin/google-signin";
 import { router } from "expo-router";
+import firestore from '@react-native-firebase/firestore';
 
 type State = {
   messageList: MessageItem[],
   contextHistory: Content[],
   geminiLoading: boolean,
-  userData: User | null
+  userData: User | null,
+  scanHistory: ProductAnalysis[],
+  response: ProductAnalysis | null,
+  responseImage: string | null
 }
 
 type Actions = {
@@ -17,6 +21,7 @@ type Actions = {
   signOut: () => Promise<void>
   checkIfAlreadySignedIn: () => Promise<void>,
   getGeminiResponse: (prompt: string, image?: string | null, json?: boolean) => Promise<string>,
+  handleScanHistory: (scanResult: ProductAnalysis, del?: boolean) => Promise<void>
 }
 
 type Zustand = Actions & State
@@ -26,6 +31,9 @@ export const useStore = create<Zustand>((set, get) => ({
   messageList: [],
   userData: null,
   geminiLoading: false,
+  scanHistory: [],
+  response: null,
+  responseImage: null,
   signIn: async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -33,6 +41,17 @@ export const useStore = create<Zustand>((set, get) => ({
       if (isSuccessResponse(response)) {
         set({ userData: response.data })
         router.navigate(`/HomeScreen`)
+        const userRef = firestore().collection('Users').doc(response.data?.user.email.toString())
+        const userSnapshot = await userRef.get()
+        if (!userSnapshot.exists) {
+          userRef.set({
+            userData: response.data?.user,
+            scanHistory: []
+          })
+        } else {
+          const userData = userSnapshot.data()
+          set({ scanHistory: userData?.scanHistory })
+        }
       }
     } catch (error) {
       console.log(error)
@@ -43,12 +62,16 @@ export const useStore = create<Zustand>((set, get) => ({
     if (response !== null) {
       set({ userData: response })
       router.navigate(`/HomeScreen`)
+      const userRef = firestore().collection('Users').doc(response.user.email.toString())
+      const userSnapshot = await userRef.get()
+      const userData = userSnapshot.data()
+      set({ scanHistory: userData?.scanHistory })
     }
   },
   signOut: async () => {
     await GoogleSignin.signOut()
     router.dismissAll()
-    set({userData:null})
+    set({ userData: null })
   },
   getGeminiResponse: async (prompt: string, image: string | null = null, json?: boolean = false): Promise<string> => {
     set({ geminiLoading: true });
@@ -126,5 +149,18 @@ export const useStore = create<Zustand>((set, get) => ({
       set({ geminiLoading: false });
     }
   },
-
+  handleScanHistory: async (scanResult: ProductAnalysis, del?: boolean = false) => {
+    const userRef = firestore().collection('Users').doc(get().userData?.user.email.toString())
+    const userSnapshot = await userRef.get()
+    let updatedList: ProductAnalysis[]
+    if (!del) {
+      updatedList = [...get().scanHistory, scanResult]
+    } else {
+      updatedList = get().scanHistory.filter((p)=>p!==scanResult)
+    }
+    set({scanHistory: updatedList})
+    await userRef.update({
+      scanHistory: updatedList
+    })
+  }
 }))
