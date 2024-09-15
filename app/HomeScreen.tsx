@@ -1,8 +1,8 @@
-import { View, Text, Pressable, Image, FlatList, ScrollView } from 'react-native'
-import React, { memo, useState } from 'react'
+import { View, Text, Pressable, Image, FlatList, ScrollView, BackHandler } from 'react-native'
+import React, { memo, useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import LottieView from 'lottie-react-native'
 import { useStore } from '@/src/store/store'
 import * as ImagePicker from 'expo-image-picker'
@@ -37,6 +37,18 @@ const HomeScreen = memo(() => {
       handleScanHistory(JSON.parse(result))
     }
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        return true;
+      };
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView className='flex-1 justify-between bg-background px-4'>
