@@ -14,6 +14,8 @@ type State = {
 
 type Actions = {
   signIn: () => Promise<void>,
+  signOut: () => Promise<void>
+  checkIfAlreadySignedIn: () => Promise<void>,
   getGeminiResponse: (prompt: string, image?: string | null, json?: boolean) => Promise<string>,
 }
 
@@ -28,14 +30,25 @@ export const useStore = create<Zustand>((set, get) => ({
     try {
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
-      if(isSuccessResponse(response)){
-        set({userData: response.data})
-        console.log(response.data)
+      if (isSuccessResponse(response)) {
+        set({ userData: response.data })
         router.navigate(`/HomeScreen`)
       }
-    } catch(error){
+    } catch (error) {
       console.log(error)
     }
+  },
+  checkIfAlreadySignedIn: async () => {
+    const response = await GoogleSignin.getCurrentUser()
+    if (response !== null) {
+      set({ userData: response })
+      router.navigate(`/HomeScreen`)
+    }
+  },
+  signOut: async () => {
+    await GoogleSignin.signOut()
+    router.dismissAll()
+    set({userData:null})
   },
   getGeminiResponse: async (prompt: string, image: string | null = null, json?: boolean = false): Promise<string> => {
     set({ geminiLoading: true });

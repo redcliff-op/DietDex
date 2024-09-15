@@ -31,6 +31,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade_from_bottom' }} />
         <Stack.Screen name="HomeScreen" options={{ headerShown: false, animation:'ios' }} />
         <Stack.Screen name="ChatScreen" options={{ headerShown: false, animation: 'ios' }} />
+        <Stack.Screen name="profile" options={{ headerShown: false, animation: 'ios' }} />
       </Stack>
     </View>
   );

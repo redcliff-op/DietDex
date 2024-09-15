@@ -1,5 +1,5 @@
 import { View, Text, Image, Pressable } from 'react-native'
-import React, { memo, useRef } from 'react'
+import React, { memo, useEffect, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import LottieView from 'lottie-react-native';
 import { router } from 'expo-router';
@@ -15,9 +15,14 @@ const index = memo(() => {
     webClientId: WEB_CLIENT_ID
   });
 
-  const {signIn} = useStore((state)=>({
-    signIn: state.signIn
+  const {signIn, checkIfAlreadySignedIn} = useStore((state)=>({
+    signIn: state.signIn,
+    checkIfAlreadySignedIn: state.checkIfAlreadySignedIn
   }))
+
+  useEffect(()=>{
+    checkIfAlreadySignedIn()
+  },[])
 
   return (
     <SafeAreaView className='flex-1 px-2 justify-evenly bg-background items-center'>

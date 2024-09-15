@@ -17,6 +17,8 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@google/generative-ai": "^0.17.1",
+    "@react-native-firebase/app": "^20.5.0",
+    "@react-native-firebase/firestore": "^20.5.0",
     "@react-native-google-signin/google-signin": "^13.0.1",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.28",

@@ -34,7 +34,6 @@ const HomeScreen = memo(() => {
       setImage(imageUri)
       const result = await getGeminiResponse("", imageUri, true)
       setResponse(JSON.parse(result))
-      console.log(JSON.parse(result))
     }
   }
 
@@ -65,14 +64,18 @@ const HomeScreen = memo(() => {
                 source={{ uri: userData?.user.photo?.toString() }}
                 className='w-[50] h-[50] rounded-full'
               />
-              <View>
+              <Pressable
+                onPress={()=>{
+                  router.navigate(`/profile`)
+                }}
+              >
                 <Text className='ml-3 text-white font-bold text-xl'>
                   Welcome {userData?.user.givenName}!
                 </Text>
                 <Text className='ml-3 text-gray-300 text-base'>
                   Let's discover healthier choices!
                 </Text>
-              </View>
+              </Pressable>
             </View>
           </View>
           {(!response) ? (
